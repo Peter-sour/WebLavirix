@@ -9,6 +9,7 @@ import {
   ExternalLink, Eye, Clock, ThumbsUp, Heart, MessageSquare, User
 } from 'lucide-react';
 
+import favicon from './assets/favicon.png';
 // --- CUSTOM ANIMATIONS & STYLES ---
 const customStyles = `
   @keyframes blob {
@@ -278,7 +279,7 @@ const generateWebConcept = async (userIdea, lang) => {
     Language: ${langInstruction}.
     Format: Return ONLY HTML snippet (using <div>, <h3 class="font-bold text-blue-400">, <ul class="list-disc pl-5">, <li>). NO Markdown.
     Style: Professional, encouraging, modern.
-    Context: The user is a potential client for "WebCreator Studio".
+    Context: The user is a potential client for "WebLavirix Studio".
   `;
   
   // Fallback Mock Data if API fails or no key
@@ -305,7 +306,7 @@ const askGeminiConsultant = async (question, lang) => {
   const langInstruction = lang === 'id' ? "Bahasa Indonesia (Gaya santai tapi sopan)" : "English (Casual but professional)";
   
   const systemPrompt = `
-    Role: AI Assistant for "WebCreator Studio" (a Freelance Web Developer).
+    Role: AI Assistant for "WebLavirix Studio" (a Freelance Web Developer).
     Task: Answer client questions about web development, pricing, technical terms, or business advice.
     Language: ${langInstruction}.
     Tone: Friendly, helpful, convincing but honest.
@@ -680,12 +681,9 @@ export default function App() {
           <div className="container mx-auto px-4 h-20 flex justify-between items-center">
              <div className="flex items-center gap-3 font-black text-2xl tracking-tighter cursor-pointer group" onClick={() => window.scrollTo(0,0)}>
                 <div className="relative">
-                  <div className="absolute inset-0 bg-blue-500 blur-lg opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-xl">
-                    <Cpu size={24}/>
-                  </div>
+                  <img src={favicon} alt="ikon" className="w-12 h-12" />
                 </div>
-                <span className="text-slate-900 dark:text-white group-hover:tracking-normal transition-all duration-300">Web<span className="text-blue-500">Creator</span></span>
+                <span className="text-slate-900 dark:text-white group-hover:tracking-normal transition-all duration-300">Web<span className="text-blue-500">Lavirix</span></span>
              </div>
              
              <div className="hidden lg:flex items-center gap-8 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md px-8 py-2 rounded-full border border-slate-200 dark:border-slate-800">
@@ -996,8 +994,11 @@ export default function App() {
             <div className="grid md:grid-cols-4 gap-12 mb-16">
               <div className="col-span-2">
                 <div className="flex items-center gap-2 font-black text-2xl tracking-tighter mb-6">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white"><Cpu size={18}/></div>
-                  <span className="text-slate-900 dark:text-white">Web<span className="text-blue-600">Creator</span></span>
+                  <img src={favicon} 
+                    alt="ikon" 
+                    className="w-12 h-12" 
+                  />
+                  <span className="text-slate-900 dark:text-white">Web<span className="text-blue-600">Lavirix</span></span>
                 </div>
                 <p className="text-slate-500 dark:text-slate-400 leading-relaxed mb-6 max-w-sm">
                   Jasa pembuatan website profesional dengan harga mahasiswa. Solusi tepat buat UMKM dan Personal Branding.
@@ -1029,7 +1030,7 @@ export default function App() {
             </div>
             
             <div className="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-slate-500 text-sm">© {new Date().getFullYear()} WebCreator Studio. All rights reserved.</p>
+              <p className="text-slate-500 text-sm">© {new Date().getFullYear()} WebLavirix Studio. All rights reserved.</p>
             </div>
           </div>
         </footer>
