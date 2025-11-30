@@ -10,12 +10,6 @@ import {
 } from 'lucide-react';
 
 import favicon from './assets/favicon.png';
-import image from './assets/image0.png';
-import image1 from './assets/image.png';
-import image4 from './assets/image4.png';
-import image2 from './assets/imag2.jpeg';
-import image6 from './assets/image6.png'
-import image5 from './assets/POS.png'
 // --- CUSTOM ANIMATIONS & STYLES ---
 const customStyles = `
   @keyframes blob {
@@ -99,12 +93,12 @@ const formatPrice = (priceIDR, currency, isPlus = false) => {
 // --- DATA LAYER ---
 
 const PORTFOLIO_ITEMS = [
-  { id: 1, title: "Coffee Shop Landing Page", category: "F&B", image: image , link: "#" },
-  { id: 2, title: "Company Profile Konstruksi", category: "Corporate", image: image1, link: "#" },
-  { id: 3, title: "Toko jam Online", category: "E-Commerce", image: image2 , link: "#" },
-  { id: 4, title: "Portal Berita Kampus", category: "Blog", image: image4, link: "#" },
-  { id: 5, title: "Sistem Kasir Sederhana", category: "Web App", image: image5 , link: "#" },
-  { id: 6, title: "Portfolio Fotografer", category: "Creative", image: image6, link: "#" },
+  { id: 1, title: "Coffee Shop Landing Page", category: "F&B", image: "https://placehold.co/800x600/3b2f2f/dfd7bf?text=Kopi+Senja", link: "#" },
+  { id: 2, title: "Company Profile Konstruksi", category: "Corporate", image: "https://placehold.co/800x600/1e293b/94a3b8?text=Construction", link: "#" },
+  { id: 3, title: "Toko Baju Online", category: "E-Commerce", image: "https://placehold.co/800x600/be185d/fce7f3?text=Fashion+Store", link: "#" },
+  { id: 4, title: "Portal Berita Kampus", category: "Blog", image: "https://placehold.co/800x600/1e40af/bfdbfe?text=News+Portal", link: "#" },
+  { id: 5, title: "Sistem Kasir Sederhana", category: "Web App", image: "https://placehold.co/800x600/047857/d1fae5?text=POS+System", link: "#" },
+  { id: 6, title: "Portfolio Fotografer", category: "Creative", image: "https://placehold.co/800x600/5b21b6/ede9fe?text=Photo+Portfolio", link: "#" },
 ];
 
 const WORK_VALUES = [
@@ -917,7 +911,7 @@ export default function App() {
                     <img 
                       src={item.image} 
                       alt={item.title} 
-                      className="w-full h-full object-contain object-center bg-black"
+                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                     />
                     
                     {/* Hover Overlay with Button */}

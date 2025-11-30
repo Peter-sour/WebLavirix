@@ -1,0 +1,1303 @@
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { 
+  Coffee, MapPin, Clock, Phone, Instagram, Facebook, Twitter, 
+  Star, ShoppingBag, X, Menu as MenuIcon, Plus, Minus, ArrowRight, 
+  CheckCircle, Calendar, Users, Utensils, ChevronDown, ChevronUp,
+  Search, Filter, Heart, Share2, Mail, Briefcase, Award, 
+  CreditCard, Truck, AlertCircle, Info, ChevronRight, Play,
+  Linkedin, User, Leaf // Added Leaf to imports
+} from 'lucide-react';
+
+/**
+ * =================================================================================
+ * ARUNIKA COFFEE ROASTERS - ULTIMATE MASTERPIECE EDITION
+ * =================================================================================
+ * * Target: High-End Coffee Shop Website
+ * Features:
+ * - Advanced State Management (Cart, Modals, Filters, Tabs)
+ * - Product Customization (Size, Sugar, Ice, Add-ons)
+ * - Membership/Loyalty Section
+ * - Blog/News Section
+ * - Career Section
+ * - Complex Reservation System
+ * - FAQ Accordion
+ * * @author Gemini AI
+ * @version 4.0.1 Ultimate (Fixed Imports)
+ */
+
+// --- 1. MOCK DATA & CONFIGURATION ---
+
+const BRAND = {
+  name: "Arunika",
+  fullName: "Arunika Coffee Roasters",
+  tagline: "Experience the Art of Coffee",
+  since: "2023",
+  address: "Senopati Estate Blok A8, Jakarta Selatan",
+  phone: "+62 812-9988-7766",
+  email: "concierge@arunika.co.id",
+  instagram: "@arunikacoffee",
+  currency: "IDR",
+  taxRate: 0.11,
+  serviceCharge: 0.05
+};
+
+const NAV_LINKS = [
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'Our Story' },
+  { id: 'menu', label: 'Collection' },
+  { id: 'membership', label: 'Membership' },
+  { id: 'journal', label: 'Journal' },
+  { id: 'careers', label: 'Careers' },
+  { id: 'visit', label: 'Visit Us' },
+];
+
+const CATEGORIES = [
+  { id: 'all', name: 'All Collection' },
+  { id: 'signature', name: 'Signatures' },
+  { id: 'manual', name: 'Manual Brew' },
+  { id: 'espresso', name: 'Espresso Base' },
+  { id: 'non-coffee', name: 'Non-Coffee' },
+  { id: 'pastry', name: 'Patisserie' },
+  { id: 'main', name: 'Main Course' }
+];
+
+const MODIFIERS = {
+  sizes: [
+    { id: 'reg', name: 'Regular', price: 0 },
+    { id: 'lrg', name: 'Large', price: 6000 }
+  ],
+  sugar: [
+    { id: '100', name: 'Normal Sugar (100%)', price: 0 },
+    { id: '75', name: 'Less Sugar (75%)', price: 0 },
+    { id: '50', name: 'Half Sugar (50%)', price: 0 },
+    { id: '0', name: 'No Sugar (0%)', price: 0 }
+  ],
+  ice: [
+    { id: 'norm', name: 'Normal Ice', price: 0 },
+    { id: 'less', name: 'Less Ice', price: 0 },
+    { id: 'no', name: 'No Ice', price: 0 }
+  ],
+  addons: [
+    { id: 'shot', name: 'Extra Espresso Shot', price: 8000 },
+    { id: 'oat', name: 'Change to Oat Milk', price: 10000 },
+    { id: 'almond', name: 'Change to Almond Milk', price: 10000 },
+    { id: 'syrup', name: 'Extra Syrup (Vanilla/Caramel)', price: 5000 }
+  ]
+};
+
+const MENU_ITEMS = [
+  // --- SIGNATURE ---
+  {
+    id: 'sig-1',
+    category: 'signature',
+    name: 'Arunika Gold Reserve',
+    description: 'Double ristretto with secret organic palm sugar, premium cream, topped with edible 24k gold leaf.',
+    price: 65000,
+    image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.9,
+    calories: 280,
+    isNew: false,
+    isBestSeller: true
+  },
+  {
+    id: 'sig-2',
+    category: 'signature',
+    name: 'Truffle Honey Latte',
+    description: 'A delicate blend of espresso, truffle-infused wild honey, and steamed Hokkaido milk.',
+    price: 58000,
+    image: 'https://images.unsplash.com/photo-1517701604599-bb29b5dd7359?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.8,
+    calories: 240,
+    isNew: true,
+    isBestSeller: false
+  },
+  {
+    id: 'sig-3',
+    category: 'signature',
+    name: 'Black Sesame Charcoal',
+    description: 'Activated charcoal latte with roasted black sesame paste and soy milk.',
+    price: 52000,
+    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.7,
+    calories: 210,
+    isNew: false,
+    isBestSeller: false
+  },
+  
+  // --- MANUAL BREW ---
+  {
+    id: 'man-1',
+    category: 'manual',
+    name: 'Panama Geisha V60',
+    description: 'World renowned beans. Floral notes of jasmine, bergamot, and peach. Clean finish.',
+    price: 120000,
+    image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=1000&auto=format&fit=crop',
+    rating: 5.0,
+    calories: 5,
+    isNew: false,
+    isBestSeller: true
+  },
+  {
+    id: 'man-2',
+    category: 'manual',
+    name: 'Ethiopia Yirgacheffe',
+    description: 'Bright acidity with lemon, blueberry, and earl grey tea notes. Japanese drip method.',
+    price: 55000,
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.8,
+    calories: 5,
+    isNew: false,
+    isBestSeller: false
+  },
+
+  // --- ESPRESSO BASE ---
+  {
+    id: 'esp-1',
+    category: 'espresso',
+    name: 'Magic Latte (Melbourne)',
+    description: 'Double ristretto poured over 3/4 flat white milk. Stronger coffee to milk ratio.',
+    price: 45000,
+    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.7,
+    calories: 120,
+    isNew: false,
+    isBestSeller: false
+  },
+  {
+    id: 'esp-2',
+    category: 'espresso',
+    name: 'Classic Cappuccino',
+    description: 'One part espresso, one part steamed milk, one part micro-foam.',
+    price: 40000,
+    image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.6,
+    calories: 110,
+    isNew: false,
+    isBestSeller: true
+  },
+
+  // --- NON COFFEE ---
+  {
+    id: 'non-1',
+    category: 'non-coffee',
+    name: 'Uji Matcha Ceremonial',
+    description: 'Imported Grade-A Matcha from Kyoto, whisked to perfection with hot water and milk.',
+    price: 55000,
+    image: 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.9,
+    calories: 180,
+    isNew: false,
+    isBestSeller: true
+  },
+  {
+    id: 'non-2',
+    category: 'non-coffee',
+    name: 'Valrhona Chocolate',
+    description: '70% Dark French Valrhona Chocolate melted into creamy steamed milk.',
+    price: 58000,
+    image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.8,
+    calories: 320,
+    isNew: false,
+    isBestSeller: false
+  },
+
+  // --- PASTRY ---
+  {
+    id: 'pas-1',
+    category: 'pastry',
+    name: 'Pain Suisse',
+    description: 'Laminated dough filled with vanilla crème pâtissière and chocolate chips.',
+    price: 45000,
+    image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.9,
+    calories: 350,
+    isNew: false,
+    isBestSeller: true
+  },
+  {
+    id: 'pas-2',
+    category: 'pastry',
+    name: 'Almond Croissant',
+    description: 'Double baked croissant filled with almond frangipane and topped with sliced almonds.',
+    price: 48000,
+    image: 'https://images.unsplash.com/photo-1509365465984-119134822e87?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.8,
+    calories: 420,
+    isNew: false,
+    isBestSeller: false
+  },
+
+  // --- MAIN ---
+  {
+    id: 'main-1',
+    category: 'main',
+    name: 'Wagyu Sando',
+    description: 'A5 Wagyu beef cutlet, caramelized onion jam, tonkatsu sauce, shokupan bread.',
+    price: 185000,
+    image: 'https://images.unsplash.com/photo-1559847844-5315695dadae?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.9,
+    calories: 650,
+    isNew: true,
+    isBestSeller: true
+  },
+  {
+    id: 'main-2',
+    category: 'main',
+    name: 'Truffle Mushroom Pasta',
+    description: 'Tagliatelle pasta, truffle cream sauce, champignon, parmesan cheese.',
+    price: 85000,
+    image: 'https://images.unsplash.com/photo-1626844131082-256783844137?q=80&w=1000&auto=format&fit=crop',
+    rating: 4.7,
+    calories: 580,
+    isNew: false,
+    isBestSeller: false
+  }
+];
+
+const BLOG_POSTS = [
+  {
+    id: 1,
+    title: "The Art of V60 Brewing",
+    excerpt: "Why the angle of your pour matters more than you think. A comprehensive guide to manual brewing.",
+    date: "Oct 12, 2023",
+    author: "Head Barista Ryan",
+    image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    id: 2,
+    title: "Understanding Coffee Processing",
+    excerpt: "Washed, Natural, or Honey? How post-harvest processing affects the flavor profile in your cup.",
+    date: "Sep 28, 2023",
+    author: "Roaster Sarah",
+    image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    id: 3,
+    title: "Sustainability in Coffee",
+    excerpt: "Our commitment to zero waste and supporting local farmers in Aceh Gayo.",
+    date: "Sep 15, 2023",
+    author: "Founder Michael",
+    image: "https://images.unsplash.com/photo-1525610553991-2bede1a236e2?q=80&w=1000&auto=format&fit=crop"
+  }
+];
+
+const REVIEWS = [
+  { id: 1, name: "Alexander P.", role: "Coffee Connoisseur", text: "The Gold Reserve is not just a drink, it's an experience. The ambiance reminds me of high-end cafes in Tokyo.", rating: 5 },
+  { id: 2, name: "Michelle T.", role: "Food Critic", text: "Impeccable service and the Wagyu Sando is to die for. A perfect spot for business meetings.", rating: 5 },
+  { id: 3, name: "Dani R.", role: "Local Guide", text: "Finally, a place in Jakarta that takes manual brew seriously. Their Geisha is brewed to perfection.", rating: 5 },
+];
+
+const FAQS = [
+  { q: "Do you offer Wi-Fi for remote working?", a: "Yes, we provide high-speed 100Mbps dedicated fiber optic Wi-Fi for our guests." },
+  { q: "Is the meat Halal?", a: "Yes, all our ingredients including Wagyu Beef and poultry are 100% Halal certified." },
+  { q: "Do you accept reservations?", a: "Absolutely. You can book a table through this website or WhatsApp. We recommend booking 2 days in advance for weekends." },
+  { q: "Do you have vegan options?", a: "Yes, we have a variety of vegan pastries and we offer Oat, Almond, and Soy milk alternatives." }
+];
+
+const JOBS = [
+  { id: 1, title: "Senior Barista", type: "Full Time", exp: "3+ Years" },
+  { id: 2, title: "Pastry Chef", type: "Full Time", exp: "5+ Years" },
+  { id: 3, title: "Floor Manager", type: "Full Time", exp: "4+ Years" }
+];
+
+// --- 2. UTILITY COMPONENTS ---
+
+const SectionHeader = ({ title, subtitle, light = false, align = 'center' }) => (
+  <div className={`mb-16 ${align === 'center' ? 'text-center' : 'text-left'}`}>
+    <span className={`uppercase tracking-[0.25em] text-xs font-bold mb-3 block ${light ? 'text-amber-500' : 'text-amber-700'}`}>
+      {subtitle}
+    </span>
+    <h2 className={`font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-tight ${light ? 'text-white' : 'text-stone-900'}`}>
+      {title}
+    </h2>
+    <div className={`h-1 w-24 bg-amber-500 mt-6 rounded-full ${align === 'center' ? 'mx-auto' : ''}`}></div>
+  </div>
+);
+
+const Button = ({ children, variant = 'primary', size = 'md', onClick, className = '', icon: Icon, disabled = false }) => {
+  const base = "inline-flex items-center justify-center transition-all duration-300 font-sans font-bold uppercase tracking-widest border";
+  
+  const sizes = {
+    sm: "px-4 py-2 text-xs",
+    md: "px-8 py-4 text-xs",
+    lg: "px-10 py-5 text-sm"
+  };
+
+  const variants = {
+    primary: "bg-amber-700 text-white border-transparent hover:bg-stone-900 hover:text-amber-500",
+    secondary: "bg-stone-900 text-white border-stone-900 hover:bg-white hover:text-stone-900 hover:border-stone-900",
+    outline: "bg-transparent text-stone-900 border-stone-900 hover:bg-stone-900 hover:text-white",
+    outlineLight: "bg-transparent text-white border-white hover:bg-white hover:text-stone-900",
+    gold: "bg-amber-500 text-stone-900 border-amber-500 hover:bg-amber-400 hover:border-amber-400"
+  };
+
+  return (
+    <button 
+      onClick={onClick}
+      disabled={disabled}
+      className={`${base} ${sizes[size]} ${variants[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+    >
+      {children}
+      {Icon && <Icon size={16} className="ml-2" />}
+    </button>
+  );
+};
+
+const Modal = ({ isOpen, onClose, children, title }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
+      <div className="bg-white w-full max-w-2xl rounded-none shadow-2xl z-10 overflow-hidden animate-fade-in-up relative max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center p-6 border-b border-stone-100 bg-stone-50 sticky top-0 z-20">
+          <h3 className="font-serif text-2xl font-bold text-stone-900">{title}</h3>
+          <button onClick={onClose} className="p-2 hover:bg-stone-200 rounded-full transition-colors">
+            <X className="text-stone-500" />
+          </button>
+        </div>
+        <div className="p-0">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Badge = ({ children, color = 'amber' }) => {
+  const colors = {
+    amber: 'bg-amber-100 text-amber-800',
+    green: 'bg-emerald-100 text-emerald-800',
+    stone: 'bg-stone-100 text-stone-800'
+  };
+  return (
+    <span className={`${colors[color]} px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-sm`}>
+      {children}
+    </span>
+  );
+};
+
+// --- 3. MAIN APPLICATION COMPONENT ---
+
+export default function ArunikaUltimate() {
+  // State Management
+  const [scrolled, setScrolled] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Cart & Product Modal State
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productPreferences, setProductPreferences] = useState({
+    size: 'reg',
+    sugar: '100',
+    ice: 'norm',
+    addons: []
+  });
+
+  // Other Modals State
+  const [isReservationOpen, setIsReservationOpen] = useState(false);
+  const [reservationStep, setReservationStep] = useState(1);
+  const [openFaq, setOpenFaq] = useState(null);
+
+  // Derived State
+  const cartTotal = cart.reduce((acc, item) => acc + item.totalPrice, 0);
+  const cartTax = cartTotal * BRAND.taxRate;
+  const cartService = cartTotal * BRAND.serviceCharge;
+  const grandTotal = cartTotal + cartTax + cartService;
+
+  // Effects
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Handlers
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setProductPreferences({ size: 'reg', sugar: '100', ice: 'norm', addons: [] }); // Reset
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedProduct) return;
+
+    // Calculate item specific price based on modifiers
+    let price = selectedProduct.price;
+    const sizeMod = MODIFIERS.sizes.find(s => s.id === productPreferences.size);
+    const addonsMod = productPreferences.addons.map(id => MODIFIERS.addons.find(a => a.id === id));
+    
+    price += sizeMod?.price || 0;
+    addonsMod.forEach(a => price += a.price);
+
+    const newItem = {
+      ...selectedProduct,
+      uid: Date.now(), // unique id for cart instance
+      modifiers: {
+        size: sizeMod,
+        sugar: MODIFIERS.sugar.find(s => s.id === productPreferences.sugar),
+        ice: MODIFIERS.ice.find(i => i.id === productPreferences.ice),
+        addons: addonsMod
+      },
+      qty: 1,
+      basePrice: selectedProduct.price,
+      totalPrice: price
+    };
+
+    setCart([...cart, newItem]);
+    setSelectedProduct(null);
+    setIsCartOpen(true);
+  };
+
+  const removeCartItem = (uid) => {
+    setCart(cart.filter(item => item.uid !== uid));
+  };
+
+  const toggleAddon = (id) => {
+    setProductPreferences(prev => {
+      const exists = prev.addons.includes(id);
+      return {
+        ...prev,
+        addons: exists ? prev.addons.filter(a => a !== id) : [...prev.addons, id]
+      };
+    });
+  };
+
+  const renderProductModal = () => (
+    <Modal 
+      isOpen={!!selectedProduct} 
+      onClose={() => setSelectedProduct(null)} 
+      title="Customize Your Order"
+    >
+      {selectedProduct && (
+        <div className="flex flex-col">
+          <div className="h-64 bg-stone-200 relative">
+            <img src={selectedProduct.image} className="w-full h-full object-cover" alt={selectedProduct.name} />
+            <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-6">
+              <h4 className="text-white font-serif text-3xl font-bold">{selectedProduct.name}</h4>
+              <p className="text-white/80">{selectedProduct.description}</p>
+            </div>
+          </div>
+          
+          <div className="p-6 space-y-8">
+            {/* Size Selection */}
+            {selectedProduct.category !== 'main' && selectedProduct.category !== 'pastry' && (
+               <>
+                <div>
+                  <h5 className="font-bold text-stone-900 mb-3 uppercase text-xs tracking-wider">Size</h5>
+                  <div className="grid grid-cols-2 gap-4">
+                    {MODIFIERS.sizes.map(size => (
+                      <button
+                        key={size.id}
+                        onClick={() => setProductPreferences({...productPreferences, size: size.id})}
+                        className={`p-4 border text-center transition-all ${productPreferences.size === size.id ? 'border-amber-600 bg-amber-50 text-amber-900' : 'border-stone-200 hover:border-amber-600'}`}
+                      >
+                        <span className="block font-bold">{size.name}</span>
+                        <span className="text-xs text-stone-500">{size.price > 0 ? `+ Rp ${size.price.toLocaleString()}` : 'Standard'}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sugar Level */}
+                {selectedProduct.category !== 'manual' && (
+                  <div>
+                    <h5 className="font-bold text-stone-900 mb-3 uppercase text-xs tracking-wider">Sugar Level</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {MODIFIERS.sugar.map(opt => (
+                        <button
+                          key={opt.id}
+                          onClick={() => setProductPreferences({...productPreferences, sugar: opt.id})}
+                          className={`px-4 py-2 text-sm border rounded-sm transition-all ${productPreferences.sugar === opt.id ? 'bg-stone-900 text-white border-stone-900' : 'border-stone-300 text-stone-600 hover:border-stone-900'}`}
+                        >
+                          {opt.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Ice Level (Only if applicable, simplified logic here) */}
+                <div>
+                  <h5 className="font-bold text-stone-900 mb-3 uppercase text-xs tracking-wider">Ice Level</h5>
+                  <div className="flex flex-wrap gap-2">
+                    {MODIFIERS.ice.map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => setProductPreferences({...productPreferences, ice: opt.id})}
+                        className={`px-4 py-2 text-sm border rounded-sm transition-all ${productPreferences.ice === opt.id ? 'bg-stone-900 text-white border-stone-900' : 'border-stone-300 text-stone-600 hover:border-stone-900'}`}
+                      >
+                        {opt.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+               </>
+            )}
+
+            {/* Add-ons */}
+            <div>
+              <h5 className="font-bold text-stone-900 mb-3 uppercase text-xs tracking-wider">Add-ons</h5>
+              <div className="space-y-2">
+                {MODIFIERS.addons.map(addon => (
+                  <label key={addon.id} className="flex items-center justify-between p-3 border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <input 
+                        type="checkbox" 
+                        checked={productPreferences.addons.includes(addon.id)}
+                        onChange={() => toggleAddon(addon.id)}
+                        className="w-5 h-5 accent-amber-600"
+                      />
+                      <span className="text-stone-700 font-medium">{addon.name}</span>
+                    </div>
+                    <span className="text-stone-500 text-sm">+ Rp {addon.price.toLocaleString()}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Total & Action */}
+            <div className="pt-6 border-t border-stone-200 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-stone-500 mb-1">Total Price</p>
+                <p className="text-2xl font-serif font-bold text-amber-700">
+                  {(() => {
+                    let total = selectedProduct.price;
+                    const size = MODIFIERS.sizes.find(s => s.id === productPreferences.size);
+                    const addons = productPreferences.addons.map(id => MODIFIERS.addons.find(a => a.id === id));
+                    if (size) total += size.price;
+                    addons.forEach(a => total += a.price);
+                    return `Rp ${total.toLocaleString()}`;
+                  })()}
+                </p>
+              </div>
+              <Button onClick={handleAddToCart}>Add to Cart</Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+
+  return (
+    <div className="font-sans text-stone-800 bg-stone-50 min-h-screen selection:bg-amber-200">
+      {/* Styles Injection */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap');
+        
+        body { font-family: 'Lato', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-serif { font-family: 'Playfair Display', serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { bg: #f5f5f4; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b45309; }
+        
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out; }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      {renderProductModal()}
+
+      {/* --- NAVIGATION --- */}
+      <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-stone-950/95 backdrop-blur-md shadow-2xl py-3' : 'bg-transparent py-8'}`}>
+        <div className="container mx-auto px-6 flex justify-between items-center">
+          {/* Logo */}
+          <a href="#" className="flex items-center gap-3 group relative z-50">
+            <div className={`w-10 h-10 flex items-center justify-center border-2 rounded-sm transition-colors ${scrolled ? 'border-amber-500 text-amber-500' : 'border-white text-white'}`}>
+              <span className="font-serif font-bold text-xl">A</span>
+            </div>
+            <div className="hidden md:block">
+              <span className={`block font-serif text-xl font-bold tracking-widest uppercase leading-none ${scrolled ? 'text-white' : 'text-white'}`}>Arunika</span>
+              <span className={`block text-[10px] tracking-[0.4em] uppercase ${scrolled ? 'text-stone-400' : 'text-white/70'}`}>Roasters</span>
+            </div>
+          </a>
+
+          {/* Desktop Links */}
+          <div className={`hidden lg:flex items-center gap-8 ${scrolled ? 'text-stone-300' : 'text-white'}`}>
+            {NAV_LINKS.map(link => (
+              <a 
+                key={link.id} 
+                href={`#${link.id}`} 
+                className="text-xs font-bold uppercase tracking-widest hover:text-amber-500 transition-colors relative group py-2"
+              >
+                {link.label}
+                <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
+              </a>
+            ))}
+          </div>
+
+          {/* Icons/Actions */}
+          <div className="flex items-center gap-6 relative z-50">
+            <button 
+              onClick={() => setIsCartOpen(true)}
+              className={`relative group ${scrolled ? 'text-white' : 'text-white'}`}
+            >
+              <ShoppingBag className="w-6 h-6 group-hover:text-amber-500 transition-colors" strokeWidth={1.5} />
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-amber-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full animate-bounce">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+
+            <button 
+              onClick={() => setIsReservationOpen(true)}
+              className="hidden md:block bg-amber-600 text-white px-6 py-2.5 text-xs font-bold uppercase tracking-widest hover:bg-amber-700 transition-colors rounded-sm"
+            >
+              Book Table
+            </button>
+
+            <button 
+              className={`lg:hidden ${scrolled ? 'text-white' : 'text-white'}`}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X /> : <MenuIcon />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div className="absolute top-0 left-0 w-full h-screen bg-stone-950 flex flex-col items-center justify-center space-y-8 animate-fade-in-up lg:hidden">
+            {NAV_LINKS.map(link => (
+              <a 
+                key={link.id} 
+                href={`#${link.id}`} 
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-2xl font-serif text-white hover:text-amber-500 transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+             <button 
+              onClick={() => { setIsReservationOpen(true); setMobileMenuOpen(false); }}
+              className="mt-8 bg-amber-600 text-white px-8 py-3 text-sm font-bold uppercase tracking-widest"
+            >
+              Book A Table
+            </button>
+          </div>
+        )}
+      </nav>
+
+      {/* --- CART DRAWER --- */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-[60] flex justify-end">
+          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-[slideInRight_0.3s_ease-out]">
+            <div className="p-6 bg-stone-950 text-white flex justify-between items-center">
+              <h3 className="font-serif text-xl tracking-wide">Your Order</h3>
+              <button onClick={() => setIsCartOpen(false)}><X className="text-stone-400 hover:text-white" /></button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {cart.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-stone-400">
+                  <ShoppingBag size={64} strokeWidth={1} className="mb-4 opacity-20" />
+                  <p className="uppercase tracking-widest text-sm">Cart is Empty</p>
+                </div>
+              ) : (
+                cart.map(item => (
+                  <div key={item.uid} className="flex gap-4 border-b border-stone-100 pb-6">
+                    <img src={item.image} className="w-20 h-24 object-cover rounded-sm" alt={item.name} />
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-1">
+                        <h4 className="font-serif font-bold text-stone-900">{item.name}</h4>
+                        <p className="font-bold text-amber-700">Rp {item.totalPrice.toLocaleString()}</p>
+                      </div>
+                      
+                      {/* Modifiers List */}
+                      <div className="text-xs text-stone-500 space-y-1 mb-3">
+                        {item.modifiers.size && <p>• Size: {item.modifiers.size.name}</p>}
+                        {item.modifiers.sugar && <p>• Sugar: {item.modifiers.sugar.name}</p>}
+                        {item.modifiers.addons.length > 0 && (
+                           <p>• + {item.modifiers.addons.map(a => a.name).join(', ')}</p>
+                        )}
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <button onClick={() => removeCartItem(item.uid)} className="text-xs text-red-500 hover:text-red-700 underline">Remove</button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {cart.length > 0 && (
+              <div className="p-6 bg-stone-50 border-t border-stone-200">
+                <div className="space-y-2 mb-6 text-sm">
+                  <div className="flex justify-between text-stone-500">
+                    <span>Subtotal</span>
+                    <span>Rp {cartTotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-stone-500">
+                    <span>Tax (11%)</span>
+                    <span>Rp {cartTax.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-stone-500">
+                    <span>Service (5%)</span>
+                    <span>Rp {cartService.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold text-stone-900 pt-2 border-t border-stone-200">
+                    <span>Total</span>
+                    <span>Rp {grandTotal.toLocaleString()}</span>
+                  </div>
+                </div>
+                <Button className="w-full" onClick={() => alert("Redirecting to Payment Gateway...")}>
+                  Checkout Now
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* --- HERO SECTION --- */}
+      <header id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Video/Image Parallax */}
+        <div className="absolute inset-0 bg-stone-900">
+          <img 
+            src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=2000&auto=format&fit=crop" 
+            className="w-full h-full object-cover opacity-60"
+            alt="Hero Background"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-stone-950"></div>
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+        </div>
+
+        <div className="relative z-10 text-center max-w-4xl mx-auto px-6 mt-16">
+          <div className="animate-fade-in-up">
+            <div className="inline-flex items-center gap-4 mb-8 text-amber-500 border border-amber-500/30 px-6 py-2 rounded-full bg-black/40 backdrop-blur-sm">
+              <Star size={14} fill="currentColor" />
+              <span className="text-xs font-bold uppercase tracking-[0.2em]">Award Winning Roastery 2023</span>
+              <Star size={14} fill="currentColor" />
+            </div>
+            
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif text-white font-bold leading-none mb-8 tracking-tight drop-shadow-2xl">
+              Arunika <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-500 to-amber-700 italic">
+                Masterpiece
+              </span>
+            </h1>
+
+            <p className="text-stone-300 text-lg md:text-xl font-light leading-relaxed mb-12 max-w-2xl mx-auto">
+              A symphony of flavors tailored for the connoisseur. Experience the finest beans from the Indonesian archipelago, roasted with precision and passion.
+            </p>
+
+            <div className="flex flex-col md:flex-row gap-6 justify-center">
+              <Button size="lg" onClick={() => document.getElementById('menu').scrollIntoView({behavior:'smooth'})}>
+                Explore Collection
+              </Button>
+              <Button variant="outlineLight" size="lg" onClick={() => setIsReservationOpen(true)}>
+                Reserve A Table
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-10 left-10 hidden lg:flex items-center gap-4 text-white/50">
+          <span className="text-xs uppercase tracking-widest">Scroll to Discover</span>
+          <div className="w-12 h-[1px] bg-white/30"></div>
+        </div>
+      </header>
+
+      {/* --- STATISTICS / SOCIAL PROOF --- */}
+      <section className="bg-stone-950 py-16 border-b border-stone-800">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-stone-800">
+            {[
+              { num: "15+", label: "Single Origins" },
+              { num: "2023", label: "Established" },
+              { num: "4.9", label: "Avg Rating" },
+              { num: "12k", label: "Happy Guests" }
+            ].map((stat, i) => (
+              <div key={i} className="group cursor-default">
+                <h3 className="text-4xl md:text-5xl font-serif font-bold text-white mb-2 group-hover:text-amber-500 transition-colors">{stat.num}</h3>
+                <p className="text-stone-500 text-xs uppercase tracking-[0.2em]">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- OUR STORY (Dual Layout) --- */}
+      <section id="about" className="py-24 md:py-32 bg-white overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-20">
+            <div className="lg:w-1/2 relative">
+              <div className="relative z-10">
+                <img 
+                  src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=1000&auto=format&fit=crop" 
+                  alt="Pour Over" 
+                  className="w-full h-[600px] object-cover filter brightness-90 grayscale-[20%]"
+                />
+                <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-amber-500 hidden md:flex items-center justify-center p-8 z-20">
+                  <p className="font-serif font-bold text-stone-900 text-2xl leading-tight italic">
+                    "Coffee is a language in itself."
+                  </p>
+                </div>
+              </div>
+              <div className="absolute top-10 -left-10 w-full h-full border-2 border-stone-900 z-0 hidden md:block"></div>
+            </div>
+
+            <div className="lg:w-1/2">
+              <SectionHeader align="left" title="The Philosophy of Brewing" subtitle="Our Story" />
+              
+              <div className="space-y-6 text-stone-600 leading-relaxed text-lg">
+                <p>
+                  <span className="text-4xl float-left mr-3 font-serif font-bold text-amber-600 line-through-none">A</span>
+                  runika was born from a simple yet profound desire: to elevate the daily ritual of coffee into a transcendental experience. We believe that every cup tells a story of the soil, the farmer, and the roaster.
+                </p>
+                <p>
+                  Our beans are sourced directly from the misty highlands of Gayo, the volcanic soils of Kintamani, and the lush forests of Toraja. We treat each bean with reverence, roasting them in small batches on our vintage Probat roaster to unlock their hidden symphonies of flavor.
+                </p>
+                <p>
+                  It is not just about caffeine; it is about connection. A connection to the earth, to tradition, and to the moment of stillness in a chaotic world.
+                </p>
+              </div>
+
+              <div className="mt-12 flex gap-8">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-stone-100 rounded-full text-amber-600"><Award /></div>
+                  <div>
+                    <h5 className="font-bold text-stone-900 mb-1">Master Roasters</h5>
+                    <p className="text-sm text-stone-500">Certified Q Graders on site.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-stone-100 rounded-full text-amber-600"><Leaf /></div>
+                  <div>
+                    <h5 className="font-bold text-stone-900 mb-1">Sustainably Sourced</h5>
+                    <p className="text-sm text-stone-500">Direct trade with farmers.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-12">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Signature_sample.svg" className="h-16 opacity-50" alt="Signature" />
+                <p className="text-xs font-bold uppercase tracking-widest mt-2 text-stone-400">Michael S., Founder</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- MENU COLLECTION (Tabbed & Filtered) --- */}
+      <section id="menu" className="py-24 bg-stone-100">
+        <div className="container mx-auto px-6">
+          <SectionHeader title="Curated Collection" subtitle="Taste the Exceptional" />
+
+          {/* Categories */}
+          <div className="flex flex-wrap justify-center gap-4 mb-16">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveTab(cat.id)}
+                className={`px-8 py-3 text-xs font-bold uppercase tracking-widest transition-all duration-300 border ${
+                  activeTab === cat.id 
+                    ? 'bg-stone-900 text-white border-stone-900' 
+                    : 'bg-transparent text-stone-500 border-stone-300 hover:border-stone-900 hover:text-stone-900'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
+            {MENU_ITEMS
+              .filter(item => activeTab === 'all' || item.category === activeTab)
+              .map(item => (
+                <div 
+                  key={item.id} 
+                  className="group bg-white rounded-sm shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer overflow-hidden flex flex-col"
+                  onClick={() => handleProductClick(item)}
+                >
+                  <div className="relative h-72 overflow-hidden">
+                    <img 
+                      src={item.image} 
+                      alt={item.name} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    
+                    {/* Badges */}
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      {item.isBestSeller && <Badge color="amber">Best Seller</Badge>}
+                      {item.isNew && <Badge color="green">New Arrival</Badge>}
+                    </div>
+
+                    {/* Quick Add Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+                       <span className="bg-white text-stone-900 px-6 py-3 font-bold uppercase tracking-widest text-xs hover:bg-amber-500 transition-colors">
+                         Quick View
+                       </span>
+                    </div>
+                  </div>
+
+                  <div className="p-8 flex-1 flex flex-col">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="font-serif text-2xl font-bold text-stone-900 group-hover:text-amber-600 transition-colors">
+                        {item.name}
+                      </h3>
+                      <span className="font-bold text-stone-900">
+                        {item.price < 1000 ? item.price : item.price / 1000}K
+                      </span>
+                    </div>
+                    
+                    <p className="text-stone-500 text-sm leading-relaxed mb-6 flex-1">
+                      {item.description}
+                    </p>
+
+                    <div className="pt-6 border-t border-stone-100 flex items-center justify-between text-xs text-stone-400 font-bold uppercase tracking-wider">
+                       <div className="flex items-center gap-2">
+                         <Star size={14} className="text-amber-500" fill="currentColor" />
+                         <span>{item.rating}</span>
+                       </div>
+                       <span>{item.calories} Kcal</span>
+                    </div>
+                  </div>
+                </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- MEMBERSHIP / LOYALTY --- */}
+      <section id="membership" className="py-24 bg-stone-900 text-white relative overflow-hidden">
+        {/* Abstract shapes */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-600 rounded-full filter blur-[120px] opacity-20"></div>
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-stone-700 rounded-full filter blur-[100px] opacity-20"></div>
+
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-16">
+            <div className="lg:w-1/2">
+              <span className="text-amber-500 font-bold tracking-widest uppercase mb-4 block">Arunika Elite</span>
+              <h2 className="text-5xl md:text-6xl font-serif font-bold mb-6">Unlock Exclusive <br/> Privileges</h2>
+              <p className="text-stone-300 text-lg mb-8 leading-relaxed">
+                Join our tiered membership program. Earn beans for every purchase and redeem them for exclusive merchandise, workshops, or complimentary drinks.
+              </p>
+              
+              <div className="space-y-6 mb-10">
+                <div className="flex items-center gap-4">
+                  <CheckCircle className="text-amber-500" />
+                  <span>Priority Reservation Access</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <CheckCircle className="text-amber-500" />
+                  <span>Birthday Rewards & Special Gifts</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <CheckCircle className="text-amber-500" />
+                  <span>Access to Private Cupping Sessions</span>
+                </div>
+              </div>
+
+              <Button variant="gold" className="w-full md:w-auto">Join Membership</Button>
+            </div>
+
+            {/* Card Visual */}
+            <div className="lg:w-1/2 flex justify-center perspective-1000">
+              <div className="relative w-full max-w-md h-64 bg-gradient-to-br from-stone-800 to-black rounded-xl border border-amber-500/30 p-8 shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-700">
+                <div className="flex justify-between items-start mb-12">
+                  <span className="font-serif font-bold text-2xl text-amber-500">Arunika Elite</span>
+                  <Coffee className="text-white/20 w-12 h-12" />
+                </div>
+                <div className="space-y-2">
+                  <p className="font-mono text-xl tracking-[0.2em] text-white/80">8821 9930 1120 4458</p>
+                  <div className="flex justify-between items-end mt-4">
+                    <div>
+                      <p className="text-xs text-stone-500 uppercase">Member Name</p>
+                      <p className="font-bold">ALEXANDER PIERCE</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-stone-500 uppercase text-right">Tier</p>
+                      <p className="font-bold text-amber-500 text-right">GOLD</p>
+                    </div>
+                  </div>
+                </div>
+                {/* Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent rounded-xl pointer-events-none"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- JOURNAL / BLOG --- */}
+      <section id="journal" className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <SectionHeader title="The Roaster's Journal" subtitle="Read & Learn" />
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {BLOG_POSTS.map(post => (
+              <article key={post.id} className="group cursor-pointer">
+                <div className="overflow-hidden mb-6 h-64">
+                  <img 
+                    src={post.image} 
+                    alt={post.title} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </div>
+                <div className="flex items-center gap-4 text-xs text-stone-500 uppercase tracking-wider mb-3">
+                  <span>{post.date}</span>
+                  <span className="w-1 h-1 bg-amber-500 rounded-full"></span>
+                  <span>{post.author}</span>
+                </div>
+                <h3 className="font-serif text-2xl font-bold text-stone-900 mb-3 group-hover:text-amber-700 transition-colors">
+                  {post.title}
+                </h3>
+                <p className="text-stone-600 mb-4 line-clamp-3 leading-relaxed">
+                  {post.excerpt}
+                </p>
+                <span className="inline-flex items-center text-amber-700 font-bold uppercase text-xs tracking-widest hover:underline">
+                  Read Article <ChevronRight size={14} className="ml-1" />
+                </span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- CAREERS --- */}
+      <section id="careers" className="py-24 bg-stone-100">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-4xl font-bold mb-4">Join Our Team</h2>
+            <p className="text-stone-600">We are looking for passionate individuals to craft perfection.</p>
+          </div>
+
+          <div className="grid gap-4">
+            {JOBS.map(job => (
+              <div key={job.id} className="bg-white p-8 flex flex-col md:flex-row items-center justify-between shadow-sm hover:shadow-md transition-shadow group">
+                <div className="mb-4 md:mb-0 text-center md:text-left">
+                  <h4 className="font-serif text-xl font-bold text-stone-900 group-hover:text-amber-600 transition-colors">{job.title}</h4>
+                  <div className="flex gap-4 text-sm text-stone-500 justify-center md:justify-start mt-2">
+                    <span className="flex items-center gap-1"><Briefcase size={14} /> {job.type}</span>
+                    <span className="flex items-center gap-1"><Clock size={14} /> {job.exp}</span>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm">Apply Now</Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- FAQ & CONTACT --- */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16">
+          {/* FAQ */}
+          <div>
+            <h3 className="font-serif text-3xl font-bold mb-8">Frequently Asked Questions</h3>
+            <div className="space-y-4">
+              {FAQS.map((faq, idx) => (
+                <div key={idx} className="border-b border-stone-200 pb-4">
+                  <button 
+                    onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                    className="w-full flex justify-between items-center text-left py-2 hover:text-amber-700 transition-colors"
+                  >
+                    <span className="font-bold text-stone-900 text-lg">{faq.q}</span>
+                    {openFaq === idx ? <Minus size={18} /> : <Plus size={18} />}
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-300 ${openFaq === idx ? 'max-h-40 mt-2' : 'max-h-0'}`}>
+                    <p className="text-stone-600 leading-relaxed">
+                      {faq.a}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Map/Visit */}
+          <div id="visit" className="bg-stone-900 text-white p-10 flex flex-col justify-between relative overflow-hidden">
+             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+             <div className="relative z-10">
+               <SectionHeader title="Visit Our Sanctuary" subtitle="Locations" align="left" light />
+               
+               <div className="space-y-6 text-lg">
+                 <div className="flex items-start gap-4">
+                   <MapPin className="text-amber-500 mt-1 shrink-0" />
+                   <div>
+                     <h5 className="font-bold">Senopati Estate</h5>
+                     <p className="text-stone-400 text-base">{BRAND.address}</p>
+                   </div>
+                 </div>
+                 <div className="flex items-start gap-4">
+                   <Clock className="text-amber-500 mt-1 shrink-0" />
+                   <div>
+                     <h5 className="font-bold">Opening Hours</h5>
+                     <p className="text-stone-400 text-base">Mon - Fri: 07:00 - 22:00</p>
+                     <p className="text-stone-400 text-base">Sat - Sun: 08:00 - 23:00</p>
+                   </div>
+                 </div>
+                 <div className="flex items-start gap-4">
+                   <Phone className="text-amber-500 mt-1 shrink-0" />
+                   <div>
+                     <h5 className="font-bold">Concierge</h5>
+                     <p className="text-stone-400 text-base">{BRAND.phone}</p>
+                     <p className="text-stone-400 text-base underline">{BRAND.email}</p>
+                   </div>
+                 </div>
+               </div>
+             </div>
+             
+             <div className="mt-12 relative z-10">
+               <Button variant="gold" className="w-full">Get Directions</Button>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- FOOTER --- */}
+      <footer className="bg-stone-950 text-stone-500 py-20 border-t border-stone-900">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            <div>
+              <div className="flex items-center gap-3 mb-6 text-white">
+                <span className="w-8 h-8 border border-white flex items-center justify-center font-serif font-bold">A</span>
+                <span className="font-serif text-xl font-bold uppercase tracking-widest">Arunika</span>
+              </div>
+              <p className="text-sm leading-relaxed mb-6">
+                Elevating the coffee experience through passion, precision, and an unyielding dedication to quality since 2023.
+              </p>
+              <div className="flex gap-4">
+                {[Instagram, Facebook, Twitter, Linkedin].map((Icon, i) => (
+                  <a key={i} href="#" className="w-10 h-10 bg-stone-900 flex items-center justify-center hover:bg-amber-600 hover:text-white transition-colors">
+                    <Icon size={18} />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-white font-serif font-bold mb-6">Explore</h4>
+              <ul className="space-y-3 text-sm">
+                {NAV_LINKS.map(link => (
+                  <li key={link.id}><a href={`#${link.id}`} className="hover:text-amber-500 transition-colors">{link.label}</a></li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-serif font-bold mb-6">Legal</h4>
+              <ul className="space-y-3 text-sm">
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Cookie Policy</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Allergen Info</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-serif font-bold mb-6">Newsletter</h4>
+              <p className="text-sm mb-4">Subscribe to receive invites to exclusive cupping sessions.</p>
+              <div className="flex">
+                <input type="email" placeholder="Email Address" className="bg-stone-900 border-none text-white px-4 py-3 w-full text-sm focus:ring-1 focus:ring-amber-500" />
+                <button className="bg-amber-600 text-white px-4 py-3 hover:bg-amber-700">
+                  <ArrowRight size={18} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-stone-900 pt-8 flex flex-col md:flex-row justify-between items-center text-xs uppercase tracking-widest">
+            <p>&copy; {new Date().getFullYear()} Arunika Coffee Roasters. All Rights Reserved.</p>
+            <p className="mt-4 md:mt-0">Crafted with Precision.</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* --- RESERVATION MODAL (Complex Form) --- */}
+      {isReservationOpen && (
+        <Modal 
+          isOpen={isReservationOpen} 
+          onClose={() => setIsReservationOpen(false)} 
+          title="Table Reservation"
+        >
+          <div className="p-8">
+            <div className="flex mb-8 border-b border-stone-200 pb-4">
+              {[1, 2, 3].map(step => (
+                <div key={step} className={`flex-1 text-center border-b-2 pb-4 -mb-4 transition-colors ${reservationStep >= step ? 'border-amber-600 text-amber-700' : 'border-transparent text-stone-300'}`}>
+                  <span className="font-bold text-xs uppercase tracking-widest">Step {step}</span>
+                </div>
+              ))}
+            </div>
+
+            <form onSubmit={(e) => { e.preventDefault(); if(reservationStep < 3) setReservationStep(s => s+1); else { alert("Booking Confirmed!"); setIsReservationOpen(false); setReservationStep(1); } }}>
+              {reservationStep === 1 && (
+                <div className="space-y-6 animate-fade-in-up">
+                  <h4 className="font-serif text-xl font-bold">Select Date & Time</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider mb-2">Date</label>
+                      <input type="date" required className="w-full border border-stone-300 p-3 focus:border-amber-500 focus:ring-0 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider mb-2">Time</label>
+                      <select className="w-full border border-stone-300 p-3 focus:border-amber-500 focus:ring-0 outline-none bg-white">
+                        <option>10:00 AM</option>
+                        <option>12:00 PM</option>
+                        <option>02:00 PM</option>
+                        <option>07:00 PM</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2">Guests</label>
+                    <div className="flex gap-2">
+                      {[2, 4, 6, 8].map(num => (
+                        <button type="button" key={num} className="flex-1 border border-stone-300 py-3 hover:border-amber-500 hover:text-amber-500 transition-colors font-bold">{num}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {reservationStep === 2 && (
+                <div className="space-y-6 animate-fade-in-up">
+                  <h4 className="font-serif text-xl font-bold">Contact Details</h4>
+                  <div className="space-y-4">
+                    <input type="text" placeholder="Full Name" required className="w-full border border-stone-300 p-3 focus:border-amber-500 focus:ring-0 outline-none" />
+                    <input type="tel" placeholder="Phone Number" required className="w-full border border-stone-300 p-3 focus:border-amber-500 focus:ring-0 outline-none" />
+                    <input type="email" placeholder="Email Address" required className="w-full border border-stone-300 p-3 focus:border-amber-500 focus:ring-0 outline-none" />
+                    <textarea placeholder="Special Requests (Allergies, Anniversary, etc.)" className="w-full border border-stone-300 p-3 focus:border-amber-500 focus:ring-0 outline-none h-24"></textarea>
+                  </div>
+                </div>
+              )}
+
+              {reservationStep === 3 && (
+                <div className="text-center py-8 animate-fade-in-up">
+                  <CheckCircle className="w-16 h-16 text-amber-500 mx-auto mb-6" />
+                  <h4 className="font-serif text-2xl font-bold mb-2">Almost There!</h4>
+                  <p className="text-stone-500 mb-8">Please review your details before confirming.</p>
+                  <div className="bg-stone-50 p-6 text-left space-y-2 mb-8 text-sm">
+                    <p><strong>Date:</strong> Oct 24, 2023</p>
+                    <p><strong>Time:</strong> 07:00 PM</p>
+                    <p><strong>Guests:</strong> 2 People</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-8 flex gap-4">
+                {reservationStep > 1 && (
+                  <Button type="button" variant="outline" onClick={() => setReservationStep(s => s-1)} className="flex-1">Back</Button>
+                )}
+                <Button type="submit" className="flex-1">{reservationStep === 3 ? "Confirm Booking" : "Next Step"}</Button>
+              </div>
+            </form>
+          </div>
+        </Modal>
+      )}
+
+    </div>
+  );
+}

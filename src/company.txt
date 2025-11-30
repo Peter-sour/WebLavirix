@@ -1,0 +1,1034 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Menu, X, MapPin, Phone, Mail, ArrowRight, 
+  CheckCircle, Globe, TrendingUp, Shield, Users,
+  Instagram, Linkedin, Facebook, Twitter, ChevronDown,
+  ChevronUp, Play, Calendar, Clock, Search, Filter,
+  Award, Briefcase, Building, Star, Plus, Minus
+} from 'lucide-react';
+
+/**
+ * ==================================================================================
+ * NUSAKARYA GLOBAL - ENTERPRISE LEVEL COMPANY PROFILE
+ * ==================================================================================
+ * * Konfigurasi:
+ * - Tema: Luxury Dark (Black, Zinc-950, Gold/Amber-500)
+ * - Font: Serif (Playfair Display) & Sans (Inter/System UI)
+ * - Fitur: SPA Routing, Filtering, Modals, Accordions, Timeline
+ */
+
+// --- 1. DATABASE & CONTENT CONFIGURATION ---
+
+const COMPANY = {
+  name: "NusaKarya Global",
+  legalName: "PT. NusaKarya Global Internasional Tbk",
+  tagline: "Elevating Business Standards Beyond Limits",
+  desc: "Mitra strategis premium untuk konstruksi digital, konsultasi manajemen korporat, dan pengembangan infrastruktur bisnis kelas dunia. Kami hadir untuk mengubah visi ambisius Anda menjadi realitas yang kokoh dan berkelanjutan.",
+  address: "Sudirman Central Business District (SCBD), Treasury Tower Lt. 58, Jl. Jend. Sudirman Kav. 52-53, Jakarta Selatan 12190",
+  phone: "+62 21 5050 8888",
+  whatsapp: "+62 812 9999 8888",
+  email: "corporate@nusakarya.com",
+  workingHours: "Senin - Jumat: 08:00 - 18:00 WIB",
+  mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.295286282006!2d106.80664977499039!3d-6.224744993763321!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f15041071983%3A0x7048744c80325d2!2sSCBD%20Jakarta!5e0!3m2!1sen!2sid!4v1701328000000"
+};
+
+const STATISTICS = [
+  { num: '240+', label: 'Proyek Selesai', icon: <Briefcase className="w-6 h-6"/> },
+  { num: '85+', label: 'Partner Global', icon: <Globe className="w-6 h-6"/> },
+  { num: '12', label: 'Tahun Dedikasi', icon: <Calendar className="w-6 h-6"/> },
+  { num: '99%', label: 'Kepuasan Klien', icon: <Star className="w-6 h-6"/> },
+  { num: '45+', label: 'Penghargaan', icon: <Award className="w-6 h-6"/> }
+];
+
+const SERVICES_DETAILED = [
+  {
+    id: 'digital',
+    title: "Digital Ecosystem Transformation",
+    shortDesc: "Transformasi digital end-to-end dari pengembangan web app hingga keamanan siber.",
+    fullDesc: "Kami membangun ekosistem digital yang tidak hanya fungsional tetapi juga aman dan scalable. Layanan kami mencakup pengembangan Enterprise ERP, Mobile Application (iOS/Android), Cloud Infrastructure Setup, hingga Cyber Security Audit.",
+    features: ["Custom ERP & CRM", "Mobile App Development", "Cloud Migration (AWS/GCP)", "Cyber Security Audit"],
+    icon: <Globe className="w-12 h-12" />,
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 'consulting',
+    title: "Strategic Business Consulting",
+    shortDesc: "Analisis mendalam dan perencanaan strategis untuk ekspansi pasar.",
+    fullDesc: "Tim konsultan kami terdiri dari para ahli industri yang siap membedah model bisnis Anda. Kami membantu dalam Feasibility Study, Market Research, Financial Modeling, dan Strategi IPO untuk perusahaan yang ingin go-public.",
+    features: ["Market Research", "Financial Modeling", "IPO Preparation", "Operational Efficiency"],
+    icon: <TrendingUp className="w-12 h-12" />,
+    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 'legal',
+    title: "Corporate Legal & Compliance",
+    shortDesc: "Penanganan legalitas korporat, HAKI, dan kepatuhan regulasi.",
+    fullDesc: "Navigasi hukum bisnis bisa rumit. Kami menyediakan layanan legalitas lengkap mulai dari pendirian PT PMA/PMDN, pengurusan izin khusus (Tambang/Konstruksi), hingga pendaftaran Hak Kekayaan Intelektual (HAKI) merek dagang Anda.",
+    features: ["Pendirian PT/CV/PMA", "Izin Usaha Khusus", "Pendaftaran HAKI", "Contract Drafting"],
+    icon: <Shield className="w-12 h-12" />,
+    image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 'construction',
+    title: "Premium Construction & Interior",
+    shortDesc: "Perancangan arsitektur dan interior kantor dengan standar tinggi.",
+    fullDesc: "Divisi konstruksi kami fokus pada pembangunan ruang komersial, gedung perkantoran, dan renovasi interior mewah. Kami menggunakan metodologi BIM (Building Information Modeling) untuk presisi dan efisiensi waktu pengerjaan.",
+    features: ["Office Interior Design", "Commercial Building", "MEP Engineering", "Smart Building System"],
+    icon: <Building className="w-12 h-12" />,
+    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800"
+  }
+];
+
+const PORTFOLIO_ITEMS = [
+  { 
+    id: 1,
+    title: "Skyline Tower Jakarta", 
+    category: "construction", 
+    client: "Skyline Property Group",
+    year: "2023",
+    desc: "Pembangunan gedung perkantoran 40 lantai dengan sertifikasi Green Building Platinum.",
+    img: "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&q=80&w=800" 
+  },
+  { 
+    id: 2,
+    title: "FinTech Dashboard UI/UX", 
+    category: "digital", 
+    client: "Bank Nusantara Digital",
+    year: "2024",
+    desc: "Redesign total sistem internet banking korporat dengan fokus pada keamanan dan kemudahan penggunaan.",
+    img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800" 
+  },
+  { 
+    id: 3,
+    title: "Modern Minimalist HQ", 
+    category: "interior", 
+    client: "Tech Unicorn Indonesia",
+    year: "2022",
+    desc: "Desain interior kantor pusat dengan konsep open-space dan smart office automation.",
+    img: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800" 
+  },
+  { 
+    id: 4,
+    title: "Global Rebranding Strategy", 
+    category: "consulting", 
+    client: "FMCG Giant Asia",
+    year: "2023",
+    desc: "Konsultasi strategi rebranding menyeluruh untuk ekspansi pasar ke Eropa dan Amerika Utara.",
+    img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=800" 
+  },
+  { 
+    id: 5,
+    title: "E-Commerce Logistics System", 
+    category: "digital", 
+    client: "LogiFast Express",
+    year: "2024",
+    desc: "Pengembangan sistem tracking real-time berbasis IoT untuk armada logistik nasional.",
+    img: "https://images.unsplash.com/photo-1566576912902-199bd620ede5?auto=format&fit=crop&q=80&w=800" 
+  },
+  { 
+    id: 6,
+    title: "Luxury Hotel Bali Renovation", 
+    category: "construction", 
+    client: "Paradise Resorts",
+    year: "2021",
+    desc: "Renovasi total area lobby dan suite president dengan sentuhan etnik modern.",
+    img: "https://images.unsplash.com/photo-1564078516393-cf04bd966897?auto=format&fit=crop&q=80&w=800" 
+  }
+];
+
+const TEAM_MEMBERS = [
+  {
+    name: "Alexander Wijaya",
+    role: "Chief Executive Officer",
+    bio: "Visioner dengan pengalaman 20 tahun di industri konstruksi dan teknologi.",
+    img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400"
+  },
+  {
+    name: "Sarah Annisa, MBA",
+    role: "Chief Financial Officer",
+    bio: "Ahli strategi keuangan korporat, mantan konsultan di Big 4 Firm.",
+    img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400"
+  },
+  {
+    name: "Ir. Budi Santoso",
+    role: "Head of Construction",
+    bio: "Insinyur sipil senior yang telah memimpin proyek infrastruktur nasional.",
+    img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400"
+  },
+  {
+    name: "Jessica Tan",
+    role: "Head of Digital Innovation",
+    bio: "Tech enthusiast yang berfokus pada AI dan implementasi IoT untuk bisnis.",
+    img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400"
+  }
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Handoko Suryo",
+    position: "CEO, Property Indoland",
+    text: "NusaKarya mengubah cara pandang kami terhadap konstruksi. Efisiensi yang mereka tawarkan melalui BIM sangat luar biasa. Proyek selesai 2 bulan lebih cepat.",
+    rating: 5
+  },
+  {
+    name: "Maria Wijaya",
+    position: "Director, Retail Asia",
+    text: "Solusi digital yang dibangun tim NusaKarya sangat robust. Traffic website kami naik 300% tanpa downtime sedikitpun. Sangat profesional.",
+    rating: 5
+  },
+  {
+    name: "David Chen",
+    position: "Founder, Startup Unicorn",
+    text: "Konsultasi strategi bisnis yang tajam. Mereka tidak hanya memberi saran, tapi peta jalan eksekusi yang nyata. Highly recommended.",
+    rating: 5
+  }
+];
+
+const BLOG_POSTS = [
+  {
+    id: 1,
+    title: "Masa Depan Smart Building di Indonesia",
+    date: "28 Nov 2024",
+    category: "Technology",
+    snippet: "Bagaimana IoT dan AI mengubah cara kita mengelola gedung perkantoran demi efisiensi energi.",
+    img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 2,
+    title: "Strategi Rebranding di Era Digital",
+    date: "15 Nov 2024",
+    category: "Branding",
+    snippet: "Rebranding bukan sekadar ganti logo. Simak 5 pilar utama strategi branding yang sukses.",
+    img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 3,
+    title: "Pentingnya Legalitas Bisnis Sejak Dini",
+    date: "02 Nov 2024",
+    category: "Legal",
+    snippet: "Jangan tunggu besar baru urus izin. Lindungi aset intelektual Anda sebelum terlambat.",
+    img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800"
+  }
+];
+
+const FAQ_ITEMS = [
+  {
+    q: "Berapa lama estimasi waktu pengerjaan website enterprise?",
+    a: "Untuk website company profile standar enterprise membutuhkan waktu 4-6 minggu. Untuk sistem yang lebih kompleks seperti ERP atau E-commerce custom, estimasi waktu berkisar 3-6 bulan tergantung fitur."
+  },
+  {
+    q: "Apakah NusaKarya menangani proyek di luar Jakarta?",
+    a: "Ya, kami melayani klien di seluruh Indonesia. Untuk proyek konstruksi, kami memiliki tim lapangan yang siap dimobilisasi ke berbagai pulau besar di Indonesia."
+  },
+  {
+    q: "Bagaimana sistem pembayaran jasanya?",
+    a: "Kami menerapkan sistem termin pembayaran. Biasanya DP 30-50% di awal kontrak, termin kedua saat progress 50-70%, dan pelunasan saat serah terima pekerjaan (Handover)."
+  },
+  {
+    q: "Apakah ada garansi setelah proyek selesai?",
+    a: "Tentu. Untuk layanan digital kami memberikan maintenance support gratis selama 3-6 bulan. Untuk konstruksi, ada masa retensi 6-12 bulan sesuai standar industri."
+  }
+];
+
+const HISTORY_TIMELINE = [
+  { year: "2013", title: "Inception", desc: "Didirikan di sebuah ruko kecil di Jakarta Selatan dengan fokus pada desain grafis." },
+  { year: "2015", title: "Expansion", desc: "Membuka divisi konstruksi interior dan mendapatkan klien korporat pertama." },
+  { year: "2018", title: "Go Digital", desc: "Transformasi menjadi 'Total Business Solution' dengan menambahkan layanan IT Development." },
+  { year: "2020", title: "Crisis Resilience", desc: "Bertahan di masa pandemi dengan pivot layanan ke digital marketing dan remote working system." },
+  { year: "2023", title: "Award Winning", desc: "Menerima penghargaan 'Best Corporate Consultant' dan ekspansi ke pasar Asia Tenggara." }
+];
+
+// --- 2. REUSABLE UI COMPONENTS ---
+
+const SectionTitle = ({ subtitle, title, align = "center", light = false }) => (
+  <div className={`mb-12 ${align === "center" ? "text-center" : "text-left"}`}>
+    <span className="text-amber-500 text-xs md:text-sm uppercase tracking-[0.25em] font-bold mb-3 block">
+      {subtitle}
+    </span>
+    <h2 className={`text-3xl md:text-5xl font-serif font-bold ${light ? "text-white" : "text-white"}`}>
+      {title}
+    </h2>
+    <div className={`h-1 w-20 bg-amber-500 mt-6 ${align === "center" ? "mx-auto" : ""}`}></div>
+  </div>
+);
+
+const Button = ({ children, variant = "primary", onClick, className = "" }) => {
+  const baseStyle = "px-8 py-3 text-sm uppercase tracking-widest font-bold transition-all duration-300 transform hover:-translate-y-1";
+  const variants = {
+    primary: "bg-amber-600 text-white hover:bg-amber-700 shadow-lg shadow-amber-900/20",
+    outline: "border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-black",
+    ghost: "text-white hover:text-amber-500",
+    white: "bg-white text-black hover:bg-zinc-200"
+  };
+  
+  return (
+    <button onClick={onClick} className={`${baseStyle} ${variants[variant]} ${className}`}>
+      {children}
+    </button>
+  );
+};
+
+const Modal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
+      <div className="relative bg-zinc-900 border border-amber-500/20 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-fade-in-up">
+        <button onClick={onClose} className="absolute top-4 right-4 text-zinc-400 hover:text-white bg-black/50 p-2 rounded-full">
+          <X size={24} />
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const AccordionItem = ({ question, answer, isOpen, onClick }) => {
+  return (
+    <div className="border-b border-zinc-800">
+      <button 
+        className="w-full py-6 flex justify-between items-center text-left hover:text-amber-500 transition-colors"
+        onClick={onClick}
+      >
+        <span className={`text-lg font-medium ${isOpen ? 'text-amber-500' : 'text-zinc-200'}`}>{question}</span>
+        {isOpen ? <ChevronUp className="text-amber-500" /> : <ChevronDown className="text-zinc-500" />}
+      </button>
+      <div 
+        className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96 opacity-100 pb-6' : 'max-h-0 opacity-0'}`}
+      >
+        <p className="text-zinc-400 leading-relaxed pr-8">{answer}</p>
+      </div>
+    </div>
+  );
+};
+
+// --- 3. PAGE SECTIONS (DETAIL IMPLEMENTATION) ---
+
+const HeroSection = ({ onCtaClick }) => (
+  <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+    {/* Background Video/Image Simulation */}
+    <div className="absolute inset-0 z-0">
+      <img 
+        src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2000" 
+        alt="Hero Background" 
+        className="w-full h-full object-cover"
+      />
+      {/* Complex Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40"></div>
+    </div>
+
+    <div className="relative z-10 container mx-auto px-6 pt-20">
+      <div className="max-w-4xl animate-slide-up">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="h-[1px] w-12 bg-amber-500"></div>
+          <span className="text-amber-500 uppercase tracking-widest text-sm font-bold">EST. 2013</span>
+        </div>
+        
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white leading-[1.1] mb-8">
+          We Build <br/>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">
+            Business Legacy.
+          </span>
+        </h1>
+        
+        <p className="text-lg md:text-xl text-zinc-300 max-w-2xl leading-relaxed mb-10 border-l-4 border-amber-600 pl-6">
+          {COMPANY.desc}
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-5">
+          <Button onClick={onCtaClick}>
+            Jelajahi Layanan
+          </Button>
+          <Button variant="outline" onClick={() => document.getElementById('contact').scrollIntoView({behavior: 'smooth'})}>
+            Hubungi Kami
+          </Button>
+        </div>
+      </div>
+    </div>
+
+    {/* Scroll Indicator */}
+    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+      <span className="text-xs text-zinc-500 uppercase tracking-widest">Scroll</span>
+      <ChevronDown className="text-amber-500" />
+    </div>
+  </section>
+);
+
+const AboutSection = () => (
+  <section className="py-24 bg-zinc-950 relative overflow-hidden" id="about">
+    {/* Decorative Elements */}
+    <div className="absolute top-0 right-0 w-1/3 h-full bg-zinc-900/30 skew-x-12 transform translate-x-20"></div>
+    
+    <div className="container mx-auto px-6 relative z-10">
+      <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
+        <div>
+          <SectionTitle subtitle="Tentang Kami" title="Dedikasi Tanpa Batas" align="left" />
+          <p className="text-zinc-400 mb-6 text-lg leading-relaxed">
+            Perjalanan {COMPANY.name} dimulai dengan satu keyakinan: bahwa setiap bisnis, besar atau kecil, berhak mendapatkan infrastruktur dan strategi terbaik untuk tumbuh.
+          </p>
+          <p className="text-zinc-400 mb-8 leading-relaxed">
+            Dari proyek konstruksi fisik hingga arsitektur digital, kami menggabungkan keahlian teknis dengan wawasan bisnis yang tajam. Kami bukan hanya vendor; kami adalah mitra pertumbuhan Anda.
+          </p>
+          
+          <div className="grid grid-cols-2 gap-6">
+             <div className="flex items-start gap-4 p-4 bg-zinc-900 rounded border border-zinc-800 hover:border-amber-500/50 transition-colors">
+                <CheckCircle className="text-amber-500 shrink-0 mt-1" />
+                <div>
+                   <h4 className="text-white font-bold mb-1">Integritas</h4>
+                   <p className="text-sm text-zinc-500">Transparansi 100%.</p>
+                </div>
+             </div>
+             <div className="flex items-start gap-4 p-4 bg-zinc-900 rounded border border-zinc-800 hover:border-amber-500/50 transition-colors">
+                <CheckCircle className="text-amber-500 shrink-0 mt-1" />
+                <div>
+                   <h4 className="text-white font-bold mb-1">Inovasi</h4>
+                   <p className="text-sm text-zinc-500">Teknologi Terkini.</p>
+                </div>
+             </div>
+          </div>
+        </div>
+        <div className="relative group">
+          <div className="absolute -inset-4 bg-gradient-to-r from-amber-600 to-amber-900 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+          <img 
+            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800" 
+            alt="Team Meeting" 
+            className="relative rounded-lg shadow-2xl grayscale hover:grayscale-0 transition-all duration-700 w-full"
+          />
+        </div>
+      </div>
+
+      {/* Timeline */}
+      <div className="mb-24">
+        <h3 className="text-2xl font-serif text-white text-center mb-12">Jejak Langkah Kami</h3>
+        <div className="relative">
+          {/* Line */}
+          <div className="absolute left-1/2 -translate-x-1/2 w-0.5 h-full bg-zinc-800 hidden md:block"></div>
+          
+          <div className="space-y-12">
+            {HISTORY_TIMELINE.map((item, idx) => (
+              <div key={idx} className={`flex flex-col md:flex-row items-center justify-center gap-8 ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
+                <div className="w-full md:w-[45%] text-center md:text-right p-6 bg-zinc-900/50 border border-zinc-800 rounded hover:border-amber-500/30 transition-all">
+                  <span className="text-amber-500 font-bold text-xl block mb-2">{item.year}</span>
+                  <h4 className="text-white font-bold mb-2">{item.title}</h4>
+                  <p className="text-zinc-400 text-sm">{item.desc}</p>
+                </div>
+                <div className="w-4 h-4 bg-amber-500 rounded-full border-4 border-black z-10 shrink-0"></div>
+                <div className="w-full md:w-[45%] hidden md:block"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Team Section */}
+      <div>
+        <SectionTitle subtitle="Kepemimpinan" title="Dewan Direksi" />
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {TEAM_MEMBERS.map((member, idx) => (
+            <div key={idx} className="group relative overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800">
+              <div className="aspect-[3/4] overflow-hidden">
+                <img src={member.img} alt={member.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 grayscale group-hover:grayscale-0" />
+              </div>
+              <div className="p-6 text-center absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent pt-20 translate-y-4 group-hover:translate-y-0 transition-transform">
+                <h4 className="text-white font-bold text-lg">{member.name}</h4>
+                <p className="text-amber-500 text-xs uppercase tracking-wider mb-2">{member.role}</p>
+                <p className="text-zinc-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity delay-100">{member.bio}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const ServicesSection = () => (
+  <section className="py-24 bg-black" id="services">
+    <div className="container mx-auto px-6">
+      <SectionTitle subtitle="Layanan Unggulan" title="Solusi Komprehensif" />
+      
+      <div className="grid md:grid-cols-2 gap-8">
+        {SERVICES_DETAILED.map((srv) => (
+          <div key={srv.id} className="bg-zinc-900 rounded-xl overflow-hidden group hover:shadow-2xl hover:shadow-amber-900/10 transition-all duration-300 border border-zinc-800 hover:border-amber-500/50">
+            <div className="p-8 flex flex-col h-full">
+              <div className="mb-6 flex justify-between items-start">
+                <div className="p-3 bg-zinc-950 rounded-lg text-amber-500 group-hover:scale-110 transition-transform">
+                  {srv.icon}
+                </div>
+                <ArrowRight className="text-zinc-600 group-hover:text-amber-500 transition-colors -rotate-45 group-hover:rotate-0" />
+              </div>
+              
+              <h3 className="text-2xl font-serif text-white font-bold mb-4">{srv.title}</h3>
+              <p className="text-zinc-400 mb-6 flex-grow leading-relaxed">
+                {srv.fullDesc}
+              </p>
+              
+              <div className="space-y-2 mb-8">
+                {srv.features.map((feat, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm text-zinc-500">
+                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full"></div>
+                    {feat}
+                  </div>
+                ))}
+              </div>
+              
+              <Button variant="outline" className="w-full">Lihat Detail</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Process Steps */}
+      <div className="mt-24 bg-zinc-900 p-12 rounded-2xl border border-zinc-800">
+        <h3 className="text-2xl text-white font-bold text-center mb-12">Alur Kerja Kami</h3>
+        <div className="grid md:grid-cols-4 gap-8">
+          {['Konsultasi Awal', 'Analisis & Strategi', 'Eksekusi Proyek', 'Maintenance & Support'].map((step, i) => (
+            <div key={i} className="text-center relative">
+               <div className="w-16 h-16 bg-zinc-950 rounded-full border-2 border-amber-500 flex items-center justify-center text-white font-bold text-xl mx-auto mb-4 z-10 relative">
+                 {i + 1}
+               </div>
+               {i !== 3 && <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-zinc-800 -z-0"></div>}
+               <h4 className="text-white font-bold mb-2">{step}</h4>
+               <p className="text-xs text-zinc-500">Tahapan detail untuk memastikan kualitas terbaik.</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const PortfolioSection = () => {
+  const [filter, setFilter] = useState('all');
+  const [selectedProject, setSelectedProject] = useState(null);
+
+  const filteredItems = filter === 'all' 
+    ? PORTFOLIO_ITEMS 
+    : PORTFOLIO_ITEMS.filter(item => item.category === filter);
+
+  const categories = [
+    { id: 'all', label: 'Semua Proyek' },
+    { id: 'construction', label: 'Konstruksi' },
+    { id: 'digital', label: 'Digital' },
+    { id: 'interior', label: 'Interior' },
+    { id: 'consulting', label: 'Consulting' }
+  ];
+
+  return (
+    <section className="py-24 bg-zinc-950" id="portfolio">
+      <div className="container mx-auto px-6">
+        <SectionTitle subtitle="Karya Kami" title="Portofolio Pilihan" />
+
+        {/* Filters */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setFilter(cat.id)}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                filter === cat.id 
+                  ? 'bg-amber-600 text-white shadow-lg shadow-amber-900/20' 
+                  : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredItems.map(item => (
+            <div 
+              key={item.id} 
+              className="group relative rounded-xl overflow-hidden aspect-[4/3] cursor-pointer bg-zinc-900"
+              onClick={() => setSelectedProject(item)}
+            >
+              <img 
+                src={item.img} 
+                alt={item.title} 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" 
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+              
+              <div className="absolute bottom-0 left-0 p-8 w-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                <span className="text-amber-500 text-xs uppercase tracking-widest font-bold mb-2 block">
+                  {categories.find(c => c.id === item.category)?.label}
+                </span>
+                <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                <div className="h-0.5 w-0 bg-amber-500 group-hover:w-full transition-all duration-500"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Project Modal */}
+      <Modal isOpen={!!selectedProject} onClose={() => setSelectedProject(null)}>
+        {selectedProject && (
+          <div className="grid md:grid-cols-2">
+            <div className="h-64 md:h-auto">
+              <img src={selectedProject.img} alt={selectedProject.title} className="w-full h-full object-cover" />
+            </div>
+            <div className="p-8">
+              <h3 className="text-2xl font-bold text-white mb-2">{selectedProject.title}</h3>
+              <p className="text-amber-500 text-sm mb-6">{selectedProject.year} • {selectedProject.client}</p>
+              <p className="text-zinc-300 mb-6 leading-relaxed">{selectedProject.desc}</p>
+              
+              <div className="space-y-4">
+                <div className="bg-zinc-950 p-4 rounded border border-zinc-800">
+                   <h5 className="text-white text-sm font-bold mb-2">Tantangan</h5>
+                   <p className="text-zinc-500 text-xs">Menciptakan solusi yang efisien dalam waktu yang ketat dengan tetap mempertahankan kualitas premium.</p>
+                </div>
+                <div className="bg-zinc-950 p-4 rounded border border-zinc-800">
+                   <h5 className="text-white text-sm font-bold mb-2">Solusi</h5>
+                   <p className="text-zinc-500 text-xs">Implementasi metodologi agile dan teknologi terbaru.</p>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-zinc-800">
+                 <Button className="w-full">Lihat Studi Kasus Lengkap</Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </section>
+  );
+};
+
+const BlogSection = () => (
+  <section className="py-24 bg-black" id="blog">
+    <div className="container mx-auto px-6">
+      <div className="flex justify-between items-end mb-12">
+        <div className="text-left">
+          <span className="text-amber-500 text-xs uppercase tracking-widest block mb-2">Wawasan & Berita</span>
+          <h2 className="text-4xl font-serif text-white font-bold">NusaKarya Insights</h2>
+        </div>
+        <Button variant="ghost" className="hidden md:block">Lihat Semua Artikel <ArrowRight className="inline ml-2" size={16}/></Button>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-8">
+        {BLOG_POSTS.map(post => (
+          <article key={post.id} className="group bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 hover:border-amber-500/50 transition-all">
+            <div className="h-48 overflow-hidden relative">
+              <img src={post.img} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <div className="absolute top-4 left-4 bg-amber-600 text-white text-xs px-3 py-1 rounded font-bold">
+                {post.category}
+              </div>
+            </div>
+            <div className="p-6">
+              <span className="text-zinc-500 text-xs mb-3 block flex items-center gap-2">
+                 <Calendar size={12}/> {post.date}
+              </span>
+              <h3 className="text-xl font-bold text-white mb-3 group-hover:text-amber-500 transition-colors line-clamp-2">
+                {post.title}
+              </h3>
+              <p className="text-zinc-400 text-sm line-clamp-3 mb-4">{post.snippet}</p>
+              <button className="text-amber-500 text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                Baca Selengkapnya <ArrowRight size={14}/>
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const TestimonialSection = () => (
+  <section className="py-24 bg-zinc-900 border-y border-zinc-800">
+    <div className="container mx-auto px-6 text-center">
+      <SectionTitle subtitle="Testimoni" title="Kata Klien Kami" />
+      
+      <div className="grid md:grid-cols-3 gap-8 mt-12">
+        {TESTIMONIALS.map((testi, idx) => (
+          <div key={idx} className="bg-black p-8 rounded-xl border border-zinc-800 relative">
+            <div className="text-amber-500 text-6xl font-serif absolute top-4 left-6 opacity-20">"</div>
+            <div className="flex gap-1 text-amber-500 mb-6 justify-center">
+              {[...Array(testi.rating)].map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+            </div>
+            <p className="text-zinc-300 text-lg italic mb-6 leading-relaxed relative z-10">"{testi.text}"</p>
+            <div>
+              <h4 className="text-white font-bold">{testi.name}</h4>
+              <p className="text-zinc-500 text-sm">{testi.position}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Client Logos (Placeholder) */}
+      <div className="mt-20 pt-10 border-t border-zinc-800">
+         <p className="text-zinc-500 text-sm mb-8 uppercase tracking-widest">Dipercaya Oleh 80+ Perusahaan</p>
+         <div className="flex flex-wrap justify-center gap-12 opacity-40 grayscale">
+            <div className="text-2xl font-bold text-white">GOOGLE</div>
+            <div className="text-2xl font-bold text-white">MICROSOFT</div>
+            <div className="text-2xl font-bold text-white">TOKOPEDIA</div>
+            <div className="text-2xl font-bold text-white">PERTAMINA</div>
+            <div className="text-2xl font-bold text-white">BCA</div>
+         </div>
+      </div>
+    </div>
+  </section>
+);
+
+const ContactSection = () => {
+  const [openFaq, setOpenFaq] = useState(0);
+
+  return (
+    <section className="py-24 bg-black relative" id="contact">
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-16">
+          {/* Left Column: Contact Form & Info */}
+          <div>
+            <SectionTitle subtitle="Hubungi Kami" title="Mulai Proyek Anda" align="left" />
+            <p className="text-zinc-400 mb-10">
+              Diskusikan kebutuhan bisnis Anda dengan tim ahli kami. Kami akan merespon dalam waktu maksimal 24 jam kerja.
+            </p>
+
+            <form className="space-y-6 mb-12">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs text-zinc-500 uppercase tracking-wider">Nama Lengkap</label>
+                  <input className="w-full bg-zinc-900 border border-zinc-800 rounded p-4 text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" placeholder="John Doe" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs text-zinc-500 uppercase tracking-wider">Email Bisnis</label>
+                  <input className="w-full bg-zinc-900 border border-zinc-800 rounded p-4 text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" placeholder="name@company.com" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs text-zinc-500 uppercase tracking-wider">Layanan yang Diminati</label>
+                <select className="w-full bg-zinc-900 border border-zinc-800 rounded p-4 text-white focus:outline-none focus:border-amber-500 transition-all">
+                  <option>Digital Transformation</option>
+                  <option>Construction</option>
+                  <option>Consulting</option>
+                  <option>Legal Service</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs text-zinc-500 uppercase tracking-wider">Pesan Detail</label>
+                <textarea rows="4" className="w-full bg-zinc-900 border border-zinc-800 rounded p-4 text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" placeholder="Ceritakan tentang proyek Anda..."></textarea>
+              </div>
+              <Button className="w-full md:w-auto">Kirim Penawaran</Button>
+            </form>
+
+            <div className="flex flex-col gap-6 p-8 bg-zinc-900/50 rounded-xl border border-zinc-800">
+              <div className="flex gap-4 items-start">
+                 <div className="bg-amber-500/10 p-3 rounded text-amber-500"><MapPin /></div>
+                 <div>
+                    <h5 className="text-white font-bold mb-1">Kantor Pusat</h5>
+                    <p className="text-zinc-400 text-sm leading-relaxed">{COMPANY.address}</p>
+                 </div>
+              </div>
+              <div className="flex gap-4 items-center">
+                 <div className="bg-amber-500/10 p-3 rounded text-amber-500"><Phone /></div>
+                 <div>
+                    <h5 className="text-white font-bold mb-1">Telepon</h5>
+                    <p className="text-zinc-400 text-sm">{COMPANY.phone}</p>
+                 </div>
+              </div>
+              <div className="flex gap-4 items-center">
+                 <div className="bg-amber-500/10 p-3 rounded text-amber-500"><Mail /></div>
+                 <div>
+                    <h5 className="text-white font-bold mb-1">Email</h5>
+                    <p className="text-zinc-400 text-sm">{COMPANY.email}</p>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: FAQ & Map */}
+          <div className="space-y-12">
+            {/* Map */}
+            <div className="h-80 bg-zinc-800 rounded-xl overflow-hidden grayscale hover:grayscale-0 transition-all duration-500 border border-zinc-700">
+               <iframe src={COMPANY.mapUrl} width="100%" height="100%" style={{border:0}} loading="lazy"></iframe>
+            </div>
+
+            {/* FAQ */}
+            <div>
+               <h3 className="text-2xl font-serif text-white mb-6">Pertanyaan Umum</h3>
+               <div className="border-t border-zinc-800">
+                 {FAQ_ITEMS.map((item, idx) => (
+                   <AccordionItem 
+                     key={idx}
+                     question={item.q}
+                     answer={item.a}
+                     isOpen={openFaq === idx}
+                     onClick={() => setOpenFaq(openFaq === idx ? -1 : idx)}
+                   />
+                 ))}
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Footer = ({ onNavClick }) => (
+  <footer className="bg-zinc-950 border-t border-zinc-900 pt-20 pb-10">
+    <div className="container mx-auto px-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        
+        {/* Brand Column */}
+        <div>
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-10 h-10 bg-amber-600 flex items-center justify-center rounded text-white font-bold text-xl font-serif">N</div>
+            <div>
+              <h2 className="text-white font-bold text-lg leading-none">NUSAKARYA</h2>
+              <span className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase">Global Enterprise</span>
+            </div>
+          </div>
+          <p className="text-zinc-500 text-sm leading-relaxed mb-6">
+            {COMPANY.desc}
+          </p>
+          <div className="flex gap-4">
+            <a href="#" className="text-zinc-400 hover:text-white transition-colors"><Instagram size={20}/></a>
+            <a href="#" className="text-zinc-400 hover:text-white transition-colors"><Linkedin size={20}/></a>
+            <a href="#" className="text-zinc-400 hover:text-white transition-colors"><Twitter size={20}/></a>
+            <a href="#" className="text-zinc-400 hover:text-white transition-colors"><Facebook size={20}/></a>
+          </div>
+        </div>
+
+        {/* Links Column */}
+        <div>
+          <h4 className="text-white font-bold mb-6">Perusahaan</h4>
+          <ul className="space-y-3 text-sm text-zinc-500">
+            <li><button onClick={() => onNavClick('about')} className="hover:text-amber-500 transition-colors">Tentang Kami</button></li>
+            <li><button onClick={() => onNavClick('portfolio')} className="hover:text-amber-500 transition-colors">Portofolio</button></li>
+            <li><button className="hover:text-amber-500 transition-colors">Karir</button></li>
+            <li><button className="hover:text-amber-500 transition-colors">Berita & Artikel</button></li>
+            <li><button className="hover:text-amber-500 transition-colors">Investor Relations</button></li>
+          </ul>
+        </div>
+
+        {/* Services Column */}
+        <div>
+          <h4 className="text-white font-bold mb-6">Layanan</h4>
+          <ul className="space-y-3 text-sm text-zinc-500">
+            <li><button className="hover:text-amber-500 transition-colors">Digital Transformation</button></li>
+            <li><button className="hover:text-amber-500 transition-colors">Business Consulting</button></li>
+            <li><button className="hover:text-amber-500 transition-colors">Construction</button></li>
+            <li><button className="hover:text-amber-500 transition-colors">Legal & Compliance</button></li>
+            <li><button className="hover:text-amber-500 transition-colors">Cyber Security</button></li>
+          </ul>
+        </div>
+
+        {/* Newsletter Column */}
+        <div>
+          <h4 className="text-white font-bold mb-6">Berlangganan</h4>
+          <p className="text-zinc-500 text-sm mb-4">Dapatkan insight bisnis terbaru setiap minggu.</p>
+          <div className="flex">
+            <input type="email" placeholder="Email Anda" className="bg-zinc-900 border border-zinc-800 text-white px-4 py-2 rounded-l w-full focus:outline-none focus:border-amber-500" />
+            <button className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-r transition-colors">
+              <ArrowRight size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-zinc-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-zinc-600">
+        <p>&copy; 2024 {COMPANY.legalName}. All Rights Reserved.</p>
+        <div className="flex gap-6">
+          <a href="#" className="hover:text-zinc-400">Privacy Policy</a>
+          <a href="#" className="hover:text-zinc-400">Terms of Service</a>
+          <a href="#" className="hover:text-zinc-400">Sitemap</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
+const Navbar = ({ activePage, setActivePage, scrolled }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navs = [
+    { id: 'home', label: 'Beranda' },
+    { id: 'about', label: 'Tentang' },
+    { id: 'services', label: 'Layanan' },
+    { id: 'portfolio', label: 'Karya' },
+    { id: 'blog', label: 'Insight' },
+    { id: 'contact', label: 'Kontak' }
+  ];
+
+  const handleNavClick = (id) => {
+    setActivePage(id);
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-lg border-b border-white/5 py-4' : 'bg-transparent py-6'}`}>
+        <div className="container mx-auto px-6 flex justify-between items-center">
+          {/* Logo */}
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => handleNavClick('home')}>
+            <div className="w-10 h-10 border border-amber-500 flex items-center justify-center rounded group-hover:bg-amber-500 transition-colors duration-300">
+               <span className="font-serif font-bold text-amber-500 text-xl group-hover:text-black">N</span>
+            </div>
+            <div className="flex flex-col">
+               <span className="text-white font-bold tracking-widest text-sm">NUSAKARYA</span>
+               <span className="text-[10px] text-amber-500 uppercase tracking-[0.2em]">Global</span>
+            </div>
+          </div>
+
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center gap-8">
+            {navs.map(nav => (
+              <button 
+                key={nav.id}
+                onClick={() => handleNavClick(nav.id)}
+                className={`text-xs uppercase tracking-widest font-bold transition-all hover:text-amber-500 ${activePage === nav.id ? 'text-amber-500' : 'text-zinc-400'}`}
+              >
+                {nav.label}
+              </button>
+            ))}
+            <Button variant="primary" className="py-2 px-6 ml-4" onClick={() => handleNavClick('contact')}>
+              Konsultasi
+            </Button>
+          </div>
+
+          {/* Mobile Toggle */}
+          <button className="lg:hidden text-white" onClick={() => setMobileMenuOpen(true)}>
+            <Menu size={28} />
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div className={`fixed inset-0 z-[60] bg-zinc-950 transform transition-transform duration-500 ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+         <div className="p-6 flex justify-end">
+            <button onClick={() => setMobileMenuOpen(false)} className="text-zinc-500 hover:text-white">
+               <X size={32} />
+            </button>
+         </div>
+         <div className="flex flex-col items-center justify-center h-full gap-8">
+            {navs.map(nav => (
+              <button 
+                key={nav.id}
+                onClick={() => handleNavClick(nav.id)}
+                className={`text-2xl font-serif font-bold ${activePage === nav.id ? 'text-amber-500' : 'text-white'}`}
+              >
+                {nav.label}
+              </button>
+            ))}
+            <div className="mt-8 border-t border-zinc-800 pt-8 w-1/2 flex justify-center gap-6">
+               <Instagram className="text-zinc-500"/>
+               <Linkedin className="text-zinc-500"/>
+               <Twitter className="text-zinc-500"/>
+            </div>
+         </div>
+      </div>
+    </>
+  );
+};
+
+// --- 4. MAIN APP COMPONENT ---
+
+export default function App() {
+  const [activePage, setActivePage] = useState('home');
+  const [scrolled, setScrolled] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Scroll Listener
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Title Update
+  useEffect(() => {
+    document.title = `${activePage.charAt(0).toUpperCase() + activePage.slice(1)} - ${COMPANY.name}`;
+  }, [activePage]);
+
+  // Fake Loading Screen
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-zinc-800 border-t-amber-500 rounded-full animate-spin mb-4"></div>
+        <div className="text-amber-500 font-serif tracking-widest animate-pulse">NUSAKARYA</div>
+      </div>
+    );
+  }
+
+  // SPA Routing Render
+  const renderContent = () => {
+    switch (activePage) {
+      case 'home':
+        return (
+          <>
+            <HeroSection onCtaClick={() => setActivePage('services')} />
+            <div className="grid grid-cols-2 md:grid-cols-5 bg-zinc-900 border-y border-zinc-800">
+               {STATISTICS.map((stat, idx) => (
+                  <div key={idx} className="p-8 text-center border-r border-zinc-800 hover:bg-zinc-800 transition-colors">
+                     <div className="flex justify-center text-amber-500 mb-2">{stat.icon}</div>
+                     <div className="text-2xl md:text-3xl font-bold text-white font-serif">{stat.num}</div>
+                     <div className="text-xs text-zinc-500 uppercase tracking-wider">{stat.label}</div>
+                  </div>
+               ))}
+            </div>
+            <AboutSection />
+            <ServicesSection />
+            <PortfolioSection />
+            <BlogSection />
+            <TestimonialSection />
+            <ContactSection />
+          </>
+        );
+      case 'about': return <div className="pt-20"><AboutSection /><TestimonialSection /><ContactSection /></div>;
+      case 'services': return <div className="pt-20"><ServicesSection /><ContactSection /></div>;
+      case 'portfolio': return <div className="pt-20"><PortfolioSection /><ContactSection /></div>;
+      case 'blog': return <div className="pt-20"><BlogSection /><ContactSection /></div>;
+      case 'contact': return <div className="pt-20"><ContactSection /></div>;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-black font-sans text-zinc-200 selection:bg-amber-500 selection:text-black">
+      <Navbar activePage={activePage} setActivePage={setActivePage} scrolled={scrolled} />
+      
+      <main className="animate-fade-in">
+        {renderContent()}
+      </main>
+      
+      <Footer onNavClick={(page) => {
+        setActivePage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }} />
+
+      {/* GLOBAL CUSTOM STYLES */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        
+        /* Custom Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { bg: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d97706; }
+      `}</style>
+    </div>
+  );
+}
