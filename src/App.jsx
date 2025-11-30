@@ -270,7 +270,7 @@ const TRANSLATIONS = {
 
 // --- API HANDLER (GENERATE CONCEPT) ---
 const generateWebConcept = async (userIdea, lang) => {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=AIzaSyDJMkeY1azUPNAvSxDXBi-RAhrfdCIC1uo`;
   const langInstruction = lang === 'id' ? "Bahasa Indonesia" : "English";
   
   const systemPrompt = `
