@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://Peter-sour.github.io/WebLavirix",
+  "homepage": "https://lavirixweb.site",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
